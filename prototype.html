@@ -539,11 +539,10 @@
               <thead>
                 <tr>
                   <th style="width: 150px;">Deal</th>
-                  <th style="width: 180px;">Legal Entity</th>
-                  <th style="width: 100px;">Fund</th>
-                  <th style="width: 120px;">Step Code</th>
-                  <th style="width: 140px;">Current Assignee</th>
-                  <th style="width: 140px;">Source Assignee</th>
+                  <th style="width: 200px;">Legal Entity</th>
+                  <th style="width: 140px;">Step Code</th>
+                  <th style="width: 160px;">Assignee</th>
+                  <th style="width: 160px;">Update As</th>
                   <th>Status</th>
                 </tr>
               </thead>
@@ -562,9 +561,9 @@
               <thead>
                 <tr>
                   <th style="width: 150px;">Deal</th>
-                  <th style="width: 180px;">Legal Entity</th>
-                  <th style="width: 100px;">Fund</th>
-                  <th style="width: 120px;">Step Code</th>
+                  <th style="width: 200px;">Legal Entity</th>
+                  <th style="width: 140px;">Step Code</th>
+                  <th style="width: 140px;">Assignee</th>
                   <th>Reason</th>
                 </tr>
               </thead>
@@ -583,9 +582,9 @@
               <thead>
                 <tr>
                   <th style="width: 150px;">Deal</th>
-                  <th style="width: 180px;">Legal Entity</th>
-                  <th style="width: 100px;">Fund</th>
-                  <th style="width: 120px;">Destination Step</th>
+                  <th style="width: 200px;">Legal Entity</th>
+                  <th style="width: 140px;">Step Code</th>
+                  <th style="width: 140px;">Assignee</th>
                   <th>Reason</th>
                 </tr>
               </thead>
@@ -699,7 +698,7 @@
           ],
           steps: ["Preparer", "First Review", "Second Review", "Approver"],
           assignments: {
-            "Borealis|SPV-17 Cayman Ltd.|": { "Preparer": "Mary Lee", "First Review": "John Smith", "Second Review": "Sarah Johnson", "Approver": "Alan Chu" },
+            "Borealis|SPV-17 Cayman Ltd.|": { "Preparer": "Mary Lee", "First Review": "Mary Lee", "Second Review": "Sarah Johnson", "Approver": "Alan Chu" },
             "Zephyr|Zephyr Holdings LLC|": { "Preparer": "Robert Kim", "First Review": "Mary Lee", "Second Review": "John Smith", "Approver": "Alan Chu" },
             "Orchid|Orchid Partners LP|": { "Preparer": "Sarah Johnson", "First Review": "Alan Chu", "Second Review": "Mary Lee", "Approver": "Robert Kim" },
             "Horizon|Horizon SPV 2 Ltd.|": { "Preparer": "John Smith", "First Review": "Sarah Johnson", "Second Review": "Alan Chu", "Approver": "Mary Lee" },
@@ -750,6 +749,45 @@
               "Preparer": { assignee: "User D", completed: true },
               "First Review": { assignee: "User E", completed: true },
               "Approver": { assignee: "User F", completed: false }
+            }
+          }
+        },
+        "Task - All Scenarios": {
+          "2024": [
+            { deal: "Borealis", dealCode: "BOR", legalEntity: "SPV-17 Cayman Ltd.", code: "C", office: "San Francisco", fullExitOn: "D", taxStructure: "—", formedOn: "9/1/2023" },
+            { deal: "Zephyr", dealCode: "ZEP", legalEntity: "Zephyr Holdings LLC", code: "C", office: "San Francisco", fullExitOn: "LL", taxStructure: "—", formedOn: "11/19/2021" },
+            { deal: "Orchid", dealCode: "ORC", legalEntity: "Orchid Partners LP", code: "C", office: "Singapore", fullExitOn: "LL", taxStructure: "—", formedOn: "8/24/2023" },
+            { deal: "UnmatchedDeal", dealCode: "UMD", legalEntity: "Unmatched Entity LLC", code: "C", office: "London", fullExitOn: "D", taxStructure: "—", formedOn: "3/1/2023" }
+          ],
+          steps: ["Preparer", "First Review", "Second Review", "Third Review", "Approver"],
+          assignments: {
+            "Borealis|SPV-17 Cayman Ltd.|": {
+              "Preparer": { assignee: "John Smith", completed: true },
+              "First Review": { assignee: "Mary Lee", completed: true },
+              "Second Review": { assignee: "Alan Chu", completed: false },
+              "Third Review": { assignee: "Robert Kim", completed: false },
+              "Approver": { assignee: "Sarah Johnson", completed: false }
+            },
+            "Zephyr|Zephyr Holdings LLC|": {
+              "Preparer": { assignee: "Mary Lee", completed: true },
+              "First Review": { assignee: "John Smith", completed: false },
+              "Second Review": { assignee: "Sarah Johnson", completed: false },
+              "Third Review": { assignee: "Alan Chu", completed: false },
+              "Approver": { assignee: "Robert Kim", completed: false }
+            },
+            "Orchid|Orchid Partners LP|": {
+              "Preparer": { assignee: "Alan Chu", completed: true },
+              "First Review": { assignee: "Sarah Johnson", completed: true },
+              "Second Review": { assignee: "John Smith", completed: false },
+              "Third Review": { assignee: "Mary Lee", completed: false },
+              "Approver": { assignee: "Robert Kim", completed: false }
+            },
+            "UnmatchedDeal|Unmatched Entity LLC|": {
+              "Preparer": { assignee: "User X", completed: true },
+              "First Review": { assignee: "User Y", completed: false },
+              "Second Review": { assignee: "User Z", completed: false },
+              "Third Review": { assignee: "User W", completed: false },
+              "Approver": { assignee: "User V", completed: false }
             }
           }
         }
@@ -837,34 +875,6 @@
           data: mockData["Side Pocket"]["SP Tax Return 10/15"]["2025"],
           steps: mockData["Side Pocket"]["SP Tax Return 10/15"].steps,
           assignments: mockData["Side Pocket"]["SP Tax Return 10/15"].assignments
-        },
-        {
-          task: "Extension Filing 03/15",
-          year: "2023",
-          entityMatch: true,
-          stepMatch: false,
-          data: [
-            { deal: "Borealis", dealCode: "BOR", legalEntity: "SPV-17 Cayman Ltd.", code: "C", office: "San Francisco", fullExitOn: "D", taxStructure: "—", formedOn: "9/1/2023" },
-            { deal: "Zephyr", dealCode: "ZEP", legalEntity: "Zephyr Holdings LLC", code: "C", office: "San Francisco", fullExitOn: "LL", taxStructure: "—", formedOn: "11/19/2021" }
-          ],
-          steps: ["Preparer", "First Review", "Approver"], // Missing "Second Review"
-          assignments: {
-            "Borealis|SPV-17 Cayman Ltd.|": { "Preparer": "Old User A", "First Review": "Old User B", "Approver": "Old User C" },
-            "Zephyr|Zephyr Holdings LLC|": { "Preparer": "Old User D", "First Review": "Old User E", "Approver": "Old User F" }
-          }
-        },
-        {
-          task: "SP Tax Return 10/15",
-          year: "2022",
-          entityMatch: false,
-          stepMatch: true,
-          data: [
-            { deal: "DifferentDeal1", dealCode: "DD1", legalEntity: "Different Entity 1", code: "C", office: "London", fullExitOn: "D", taxStructure: "—", formedOn: "1/1/2022" }
-          ],
-          steps: ["Preparer", "First Review", "Second Review", "Approver"],
-          assignments: {
-            "DifferentDeal1|Different Entity 1|": { "Preparer": "User X", "First Review": "User Y", "Second Review": "User Z", "Approver": "User W" }
-          }
         }
       ],
       "Fund": [
@@ -1103,7 +1113,8 @@
         task,
         dealPeriod,
         rows: selectedRowsData,
-        steps
+        steps,
+        assignments
       };
 
       const isFundCategory = category === "Fund";
@@ -1245,11 +1256,19 @@
           );
 
           if (!sourceRow) {
+            // Get current assignee for unmatched entity
+            const destAssignments = currentDestinationData.assignments || {};
+            const currentAssignee = destAssignments[destKey] && destAssignments[destKey][destStep]
+              ? (typeof destAssignments[destKey][destStep] === 'string'
+                  ? destAssignments[destKey][destStep]
+                  : destAssignments[destKey][destStep].assignee || "—")
+              : "—";
+
             unmatchedEntity.push({
               deal: destRow.deal,
               legalEntity: destRow.legalEntity,
-              fund: "—",
               step: destStep,
+              assignee: currentAssignee,
               reason: "No matching entity combo in source"
             });
             return;
@@ -1257,29 +1276,50 @@
 
           // Check if source has this step
           if (!source.steps.includes(destStep)) {
+            // Get current assignee for unmatched step
+            const destAssignments = currentDestinationData.assignments || {};
+            const currentAssignee = destAssignments[destKey] && destAssignments[destKey][destStep]
+              ? (typeof destAssignments[destKey][destStep] === 'string'
+                  ? destAssignments[destKey][destStep]
+                  : destAssignments[destKey][destStep].assignee || "—")
+              : "—";
+
             unmatchedStep.push({
               deal: destRow.deal,
               legalEntity: destRow.legalEntity,
-              fund: "—",
               step: destStep,
-              reason: "Step not found in source"
+              assignee: currentAssignee,
+              reason: "Step not found in mimic task"
             });
             return;
           }
 
-          // It's a match!
-          const sourceAssignee = source.assignments && source.assignments[destKey]
-            ? source.assignments[destKey][destStep] || "—"
+          // It's a match! Get current and source assignees
+          const destAssignments = currentDestinationData.assignments || {};
+          const currentAssignee = destAssignments[destKey] && destAssignments[destKey][destStep]
+            ? (typeof destAssignments[destKey][destStep] === 'string'
+                ? destAssignments[destKey][destStep]
+                : destAssignments[destKey][destStep].assignee || "—")
             : "—";
+
+          const sourceAssignee = source.assignments && source.assignments[destKey]
+            ? (typeof source.assignments[destKey][destStep] === 'string'
+                ? source.assignments[destKey][destStep]
+                : source.assignments[destKey][destStep]?.assignee || "—")
+            : "—";
+
+          // Only mark as "Will Update" if assignees differ
+          const status = (sourceAssignee !== "—" && sourceAssignee !== currentAssignee)
+            ? "Will Update"
+            : "No Change";
 
           matches.push({
             deal: destRow.deal,
             legalEntity: destRow.legalEntity,
-            fund: "—",
             step: destStep,
-            currentAssignee: "—",
+            currentAssignee: currentAssignee,
             sourceAssignee: sourceAssignee,
-            status: sourceAssignee !== "—" ? "Will Update" : "No Change"
+            status: status
           });
         });
       });
@@ -1293,7 +1333,6 @@
         tr.innerHTML = `
           <td>${m.deal}</td>
           <td>${m.legalEntity}</td>
-          <td>${m.fund}</td>
           <td>${m.step}</td>
           <td>${m.currentAssignee}</td>
           <td>${m.sourceAssignee}</td>
@@ -1314,8 +1353,8 @@
           tr.innerHTML = `
             <td>${u.deal}</td>
             <td>${u.legalEntity}</td>
-            <td>${u.fund}</td>
             <td>${u.step}</td>
+            <td>${u.assignee}</td>
             <td>${u.reason}</td>
           `;
           unmatchedEntityBody.appendChild(tr);
@@ -1334,8 +1373,8 @@
           tr.innerHTML = `
             <td>${u.deal}</td>
             <td>${u.legalEntity}</td>
-            <td>${u.fund}</td>
             <td>${u.step}</td>
+            <td>${u.assignee}</td>
             <td>${u.reason}</td>
           `;
           unmatchedStepBody.appendChild(tr);
