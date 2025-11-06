@@ -71,6 +71,26 @@
       font-size: 11px;
     }
 
+    /* Info banner */
+    .info-banner {
+      background: #E5F1FB;
+      border: 1px solid #0078D7;
+      border-left: 4px solid #0078D7;
+      padding: 8px 12px;
+      margin: 8px;
+      font-size: 11px;
+      color: #000;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .info-banner .icon {
+      color: #0078D7;
+      font-weight: bold;
+      font-size: 14px;
+    }
+
     /* Table styles matching screenshot */
     table {
       width: 100%;
@@ -342,6 +362,12 @@
       </button>
 
       <span class="row-count" id="rowCount">0/0 rows</span>
+    </div>
+
+    <!-- Info Banner -->
+    <div class="info-banner">
+      <span class="icon">ℹ</span>
+      <span><strong>Tip:</strong> Hold <strong>Ctrl</strong> (Windows) or <strong>Cmd</strong> (Mac) and click to select multiple rows for bulk operations.</span>
     </div>
 
     <!-- Main Grid -->
