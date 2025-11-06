@@ -1,0 +1,32 @@
+In our system we have a concept of Task. And each Task will have a TaskList per Deal and/or LegalEntity and/or Fund. I am going to call this "Entity Combination".
+
+Each Task list entry will also have a list of Task steps that the assigned user has to complete. The step could be something like: preparer, reviewer, approver etc. 
+
+When a new year comes forward the administrator comes to copy all the TaskList & its corresponding Steps from a particular Task and create the same Task, Task List and the Task Steps for the next year. 
+
+while doing that, they have to change the assignments of particular step from one user to another user. But doing that is really painful step by step. So they are proposing an idea to Mimic the assignments from another task thats already imported and the new assignments updated on them. We need to provide a best pototype that they would like to try and then give us some ideas. 
+
+I am going to paste some screens of my application on the existing desin and we have to create a mock up of that and the build our prototype on top of that so users get a seamless flow of the behavior from the existing system. Also I will mask sensitive info, so for those masked data, you have to fill it on your own. The first screenshot(img1) shows a particular task selected in the top dropdown and its on the category side pocket. The top grid shows the list of activities per deal and legal entity. In this case, for this task its by deal and legal entity, and so fund is missing, but some other task could involve funds, then that column will start to appear. 
+
+The second screenshot(img2) shows using the bulk section and using the +copy button at the top to create them for the new year. User would use the top section to change the attributes for the task list activities. Our plan is to add a new Mimic Assignments button to the bottom section. 
+
+On click of the button a new popup should open and it should show the previously imported task under this category. The previously imported assignments should have the correct and fixed task assignments now. We also need to do a small validation to ensure the entity combination is same as the selected task entity combination. Also the task steps are matching. if not we can show a message to user to pick another task, but if they insist to proceed, then we can show a summary of assignments that we matched and will be updated in the new import, and a summary of items unchanged do to missing entity combination mapping and list unchanged due to task step mismatching.
+
+If they feel comfortable then they can hit apply and it will update the previous screen for the assignments only for those matching ones and unmatched ones are left untouched. Then the rest follows the existing workflow. So our part if only starting from the Mimic Assignments button and ending with Apply button updating the matching assignments. 
+
+
+Clarifications 
+
+Fields to update: Only the Assigned To user for each step, correct? Should we also copy Accounting Firm and/or Due Date (both shown in your grid) or leave them untouched? - Only copy the Assigned To. Step identity: How do we determine a “match”? Exact Step Code/ID, or Step Name, or sequence position? - Just the same step code: First Review or Second Review or etc... 
+Entity matching: Is it strict equality on each present dimension? - We need to have strict equality Example: if current Task List uses (Deal, Legal Entity) and source has (Deal, Legal Entity, Fund=null), is that considered a match? - Yes, that is a match right? null is same as missing or empty 
+Should we support an explicit mapping (e.g., map Deal A → Deal A1) or is mapping out of scope? - No, thats too complicated. let's not worry about it. 
+Source task scope: “Previously imported task under this category” = same Category and typically prior year. Do we limit selection to same Task definition (same Task name) or allow any task in that category? - We should allow any under the category and prioritize the ones that has exact entity combination matching. if its a dropdown to pick, then the dropdown can have a flag denoting matching entity combination or not. 
+Multiple candidates: If several prior tasks satisfy the filters, should the popup support search + preview and single selection? - Single suggestion, but can give hits such as enity combination matching, task steps matching. so then user picks up the best fit. 
+Partial matches policy: If steps don’t match, proceed only on matched steps (as described). Do we also warn if zero matches and block Apply? - Yes, if zero matches, then they can only cancel or switch to another task Permissions: 
+Any restrictions on who can mimic? Should we log/audit the mimic action (who, when, from which task → which task lists)? - Only admins can open the popup, so the existing system already handles it. 
+Performance bounds: Typical volume (rows in bottom grid) to design for? (Your screenshot shows ~1,600 task-step rows.) - No to worry now. 
+UI details: Should the popup show a side-by-side diff/preview of assignments before applying? - I though of 3 grids from top to bottom. 
+Do you want a dry run export (CSV) of the summary? - no 
+Edge cases: What if the destination already has some manual edits—should mimic overwrite those or only fill blanks? - over ride the assignments. We are only altering the assignments anyway. 
+If a destination step currently has an assignee who is inactive or different directory realm than source—apply anyway or flag? - no 
+Undo: Do we need a Revert option after Apply (within the session), or is standard grid undo sufficient? - no, lets not worry about undo. they can cancel and start +copy again.

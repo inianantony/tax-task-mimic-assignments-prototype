@@ -1,0 +1,1388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Tax Task Mimic Assignments Prototype</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-size: 11px;
+      background: #FFFFFF;
+      color: #000000;
+    }
+
+    /* Toolbar */
+    .toolbar {
+      background: #F0F0F0;
+      border-bottom: 1px solid #BEBEBE;
+      padding: 4px 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .toolbar-btn {
+      background: #FFFFFF;
+      border: 1px solid #ADADAD;
+      padding: 3px 8px;
+      font-size: 11px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .toolbar-btn:hover {
+      background: #E5F1FB;
+      border-color: #0078D7;
+    }
+
+    .toolbar-btn:active {
+      background: #CCE4F7;
+    }
+
+    .toolbar-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .toolbar select {
+      border: 1px solid #ADADAD;
+      padding: 2px 4px;
+      font-size: 11px;
+      background: white;
+    }
+
+    .toolbar-label {
+      color: #666;
+      font-size: 11px;
+    }
+
+    .row-count {
+      margin-left: auto;
+      color: #000;
+      font-size: 11px;
+    }
+
+    /* Table styles matching screenshot */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+    }
+
+    th {
+      background: #D9D9D9;
+      border: 1px solid #BEBEBE;
+      padding: 4px 6px;
+      text-align: left;
+      font-weight: 600;
+      font-size: 11px;
+      color: #000;
+    }
+
+    td {
+      border: 1px solid #BEBEBE;
+      padding: 4px 6px;
+      font-size: 11px;
+      color: #000;
+      background: white;
+    }
+
+    tr.selectable {
+      cursor: pointer;
+    }
+
+    tr.selected td {
+      background: #C5D9F1 !important;
+    }
+
+    tr.selectable:hover td {
+      background: #E5F1FB;
+    }
+
+    /* Container */
+    .container {
+      padding: 0;
+      margin: 0;
+    }
+
+    .main-grid-container {
+      padding: 8px;
+    }
+
+    /* Split panel */
+    .split-panel {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      padding: 8px;
+      border-top: 1px solid #BEBEBE;
+    }
+
+    .panel {
+      border: 1px solid #BEBEBE;
+      background: white;
+    }
+
+    .panel-header {
+      background: #F0F0F0;
+      border-bottom: 1px solid #BEBEBE;
+      padding: 4px 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 600;
+    }
+
+    .panel-body {
+      padding: 0;
+    }
+
+    .panel-body table {
+      border: none;
+    }
+
+    /* Modal overlay */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal {
+      background: white;
+      border: 1px solid #BEBEBE;
+      width: 90%;
+      max-width: 1200px;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .modal-header {
+      background: #F0F0F0;
+      border-bottom: 1px solid #BEBEBE;
+      padding: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-title {
+      font-weight: 600;
+      font-size: 12px;
+    }
+
+    .modal-body {
+      padding: 12px;
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    .modal-footer {
+      border-top: 1px solid #BEBEBE;
+      padding: 8px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      background: #F0F0F0;
+    }
+
+    .section-title {
+      font-weight: 600;
+      margin: 12px 0 6px 0;
+      font-size: 11px;
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    /* Form fields in modal */
+    .form-row {
+      display: grid;
+      grid-template-columns: 120px 1fr 120px 1fr;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .form-label {
+      font-size: 11px;
+      color: #000;
+    }
+
+    .form-input {
+      border: 1px solid #ADADAD;
+      padding: 3px 6px;
+      font-size: 11px;
+    }
+
+    .highlight-yellow {
+      background: #FFFF00 !important;
+    }
+
+    /* Mimic dropdown special styling */
+    .mimic-select {
+      width: 100%;
+      font-family: monospace;
+      font-size: 11px;
+      padding: 4px;
+    }
+
+    .table-container {
+      overflow-x: auto;
+      margin-bottom: 12px;
+    }
+
+    /* Badges for match indicators */
+    .badge {
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-size: 10px;
+      font-weight: 600;
+      margin-left: 8px;
+    }
+
+    .badge-success {
+      background: #D4EDDA;
+      color: #155724;
+      border: 1px solid #C3E6CB;
+    }
+
+    .badge-warning {
+      background: #FFF3CD;
+      color: #856404;
+      border: 1px solid #FFEAA7;
+    }
+
+    .badge-info {
+      background: #D1ECF1;
+      color: #0C5460;
+      border: 1px solid #BEE5EB;
+    }
+
+    /* Grid sections in mimic modal */
+    .mimic-grid-section {
+      margin-bottom: 16px;
+    }
+
+    .icon {
+      font-family: monospace;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Main Toolbar -->
+    <div class="toolbar">
+      <span class="icon">☰</span>
+      <span class="toolbar-label">Grid</span>
+      <span style="border-left: 1px solid #BEBEBE; height: 16px; margin: 0 4px;"></span>
+
+      <span class="toolbar-label">Deal Period</span>
+      <select id="dealPeriodSelect">
+        <option value="2024">2024</option>
+        <option value="2025">2025</option>
+      </select>
+
+      <span class="toolbar-label">Category</span>
+      <select id="categorySelect">
+        <option value="Side Pocket">Side Pocket</option>
+        <option value="Fund">Fund</option>
+      </select>
+
+      <span class="toolbar-label">Task</span>
+      <select id="taskSelect" style="min-width: 200px;">
+        <!-- Populated by JS -->
+      </select>
+
+      <span style="border-left: 1px solid #BEBEBE; height: 16px; margin: 0 4px;"></span>
+
+      <button class="toolbar-btn" disabled>
+        <span class="icon">+</span> Add
+      </button>
+      <button class="toolbar-btn" id="copyBtn" disabled>
+        <span class="icon">+</span> Copy
+      </button>
+      <button class="toolbar-btn" disabled>
+        <span class="icon">✎</span> Edit
+      </button>
+      <button class="toolbar-btn" disabled>
+        <span class="icon">×</span> Remove
+      </button>
+      <button class="toolbar-btn" disabled>
+        <span class="icon">↻</span> Refresh
+      </button>
+
+      <span class="row-count" id="rowCount">0/0 rows</span>
+    </div>
+
+    <!-- Main Grid -->
+    <div class="main-grid-container">
+      <table id="mainTable">
+        <thead>
+          <tr>
+            <th style="width: 80px;">Deal Period</th>
+            <th style="width: 100px;">Category</th>
+            <th style="width: 120px;">Deal</th>
+            <th style="width: 80px;">Deal Code</th>
+            <th style="width: 180px;">Task</th>
+            <th style="width: 180px;">Legal Entity</th>
+            <th style="width: 120px;">Office</th>
+            <th style="width: 80px;">Full Exit On</th>
+            <th style="width: 100px;">Tax Structure</th>
+            <th style="width: 100px;">Formed On</th>
+          </tr>
+        </thead>
+        <tbody id="mainTableBody">
+          <!-- Populated by JS -->
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Split Panel: Task Properties and Task Steps -->
+    <div class="split-panel">
+      <!-- Task Properties -->
+      <div class="panel">
+        <div class="panel-header">
+          <span class="icon">☰</span> Task Properties
+          <span style="margin-left: auto; font-weight: normal;">0 rows</span>
+        </div>
+        <div class="panel-body">
+          <table>
+            <thead>
+              <tr>
+                <th style="width: 100px;">Property</th>
+                <th style="width: 80px;">State</th>
+                <th>Comment</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td colspan="3" style="text-align: center; color: #999; padding: 20px;">
+                  No properties to display
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Task Steps -->
+      <div class="panel">
+        <div class="panel-header">
+          <span class="icon">☰</span> Task Steps
+          <span style="margin-left: auto; font-weight: normal;" id="taskStepsCount">0/0 rows</span>
+        </div>
+        <div class="panel-body">
+          <table id="taskStepsTable">
+            <thead>
+              <tr>
+                <th style="width: 120px;">Step</th>
+                <th style="width: 140px;">Accounting Firm</th>
+                <th style="width: 90px;">Due Date</th>
+                <th style="width: 120px;">Assigned To</th>
+                <th style="width: 80px;">Completed?</th>
+                <th>Comment</th>
+              </tr>
+            </thead>
+            <tbody id="taskStepsBody">
+              <!-- Populated by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bulk Edit Modal -->
+  <div class="modal-overlay" id="bulkModal">
+    <div class="modal">
+      <div class="modal-header">
+        <div>
+          <div class="modal-title">Tax Task Bulk Edit</div>
+          <div style="font-size: 10px; color: #666;">Maintain Tax Tasks</div>
+        </div>
+        <button class="toolbar-btn" id="closeBulkBtn">Close</button>
+      </div>
+      <div class="modal-body">
+        <!-- Form Section -->
+        <div class="form-row">
+          <span class="form-label">Task</span>
+          <input type="text" class="form-input" id="bulkTask" readonly />
+
+          <span class="form-label">Legal Entity</span>
+          <select class="form-input" id="bulkLegalEntity">
+            <!-- Populated by JS -->
+          </select>
+        </div>
+        <div class="form-row">
+          <span class="form-label">Category</span>
+          <select class="form-input" id="bulkCategory">
+            <option value="Side Pocket">Side Pocket</option>
+            <option value="Fund">Fund</option>
+          </select>
+
+          <span class="form-label">Deal</span>
+          <select class="form-input" id="bulkDeal">
+            <!-- Populated by JS -->
+          </select>
+        </div>
+        <div class="form-row">
+          <span class="form-label">Deal Period</span>
+          <select class="form-input" id="bulkDealPeriod">
+            <option value="2024">2024</option>
+            <option value="2025">2025</option>
+          </select>
+
+          <span class="form-label">Fund</span>
+          <select class="form-input" id="bulkFund">
+            <option value="">Not Set</option>
+            <option value="Fund A">Fund A</option>
+            <option value="Fund B">Fund B</option>
+            <option value="Fund C">Fund C</option>
+            <option value="Fund D">Fund D</option>
+          </select>
+        </div>
+
+        <!-- Tasks Grid -->
+        <div class="section-title">Tasks <span class="icon">☰</span> <span style="font-weight: normal;" id="bulkTasksCount">0/0 rows</span></div>
+        <div class="table-container">
+          <table id="bulkTasksTable">
+            <thead>
+              <tr id="bulkTasksHeader">
+                <!-- Populated by JS -->
+              </tr>
+            </thead>
+            <tbody id="bulkTasksBody">
+              <!-- Populated by JS -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Task Steps Grid -->
+        <div class="section-header">
+          <div class="section-title" style="margin: 0;">Task Steps <span class="icon">☰</span> <span style="font-weight: normal;" id="bulkStepsCount">0/0 rows</span></div>
+          <button class="toolbar-btn" id="mimicBtn">Mimic Assignments</button>
+        </div>
+        <div class="table-container">
+          <table id="bulkStepsTable">
+            <thead>
+              <tr id="bulkStepsHeader">
+                <!-- Populated by JS -->
+              </tr>
+            </thead>
+            <tbody id="bulkStepsBody">
+              <!-- Populated by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="toolbar-btn" id="bulkOkBtn">OK</button>
+        <button class="toolbar-btn" id="bulkCancelBtn">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mimic Assignments Modal -->
+  <div class="modal-overlay" id="mimicModal">
+    <div class="modal">
+      <div class="modal-header">
+        <div>
+          <div class="modal-title">Mimic Assignments</div>
+          <div style="font-size: 10px; color: #666;">Copy assignees from a previous task</div>
+        </div>
+        <button class="toolbar-btn" id="closeMimicBtn">Close</button>
+      </div>
+      <div class="modal-body">
+        <!-- Source Task Selection -->
+        <div style="display: grid; grid-template-columns: 150px 1fr; gap: 8px; align-items: center; margin-bottom: 16px;">
+          <span class="form-label">Select previous task:</span>
+          <select id="mimicSourceSelect" class="mimic-select">
+            <!-- Populated by JS with formatted options -->
+          </select>
+        </div>
+
+        <!-- Matching Assignments Grid -->
+        <div class="mimic-grid-section">
+          <div class="section-title">Matching Assignments <span id="matchCount" style="font-weight: normal;"></span></div>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th style="width: 150px;">Deal</th>
+                  <th style="width: 180px;">Legal Entity</th>
+                  <th style="width: 100px;">Fund</th>
+                  <th style="width: 120px;">Step Code</th>
+                  <th style="width: 140px;">Current Assignee</th>
+                  <th style="width: 140px;">Source Assignee</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="matchingBody">
+                <!-- Populated by JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Unmatched by Entity Combination Grid -->
+        <div class="mimic-grid-section">
+          <div class="section-title">Unmatched by Entity Combination <span id="unmatchedEntityCount" style="font-weight: normal;"></span></div>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th style="width: 150px;">Deal</th>
+                  <th style="width: 180px;">Legal Entity</th>
+                  <th style="width: 100px;">Fund</th>
+                  <th style="width: 120px;">Step Code</th>
+                  <th>Reason</th>
+                </tr>
+              </thead>
+              <tbody id="unmatchedEntityBody">
+                <!-- Populated by JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Unmatched by Step Code Grid -->
+        <div class="mimic-grid-section">
+          <div class="section-title">Unmatched by Step Code <span id="unmatchedStepCount" style="font-weight: normal;"></span></div>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th style="width: 150px;">Deal</th>
+                  <th style="width: 180px;">Legal Entity</th>
+                  <th style="width: 100px;">Fund</th>
+                  <th style="width: 120px;">Destination Step</th>
+                  <th>Reason</th>
+                </tr>
+              </thead>
+              <tbody id="unmatchedStepBody">
+                <!-- Populated by JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="toolbar-btn" id="applyMimicBtn" disabled>Apply</button>
+        <button class="toolbar-btn" id="cancelMimicBtn">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Mock Data Structure
+    const mockData = {
+      "Side Pocket": {
+        "Extension Filing 03/15": {
+          "2024": [
+            { deal: "Borealis", dealCode: "BOR", legalEntity: "SPV-17 Cayman Ltd.", code: "C", office: "San Francisco", fullExitOn: "D", taxStructure: "—", formedOn: "9/1/2023" },
+            { deal: "Zephyr", dealCode: "ZEP", legalEntity: "Zephyr Holdings LLC", code: "C", office: "San Francisco", fullExitOn: "LL", taxStructure: "—", formedOn: "11/19/2021" },
+            { deal: "Orchid", dealCode: "ORC", legalEntity: "Orchid Partners LP", code: "C", office: "Singapore", fullExitOn: "LL", taxStructure: "—", formedOn: "8/24/2023" },
+            { deal: "Horizon", dealCode: "HOR", legalEntity: "Horizon SPV 2 Ltd.", code: "F", office: "Brazil", fullExitOn: "LL", taxStructure: "—", formedOn: "1/25/2018" },
+            { deal: "Nimbus", dealCode: "NIM", legalEntity: "Nimbus Finance LP", code: "C", office: "San Francisco", fullExitOn: "LL", taxStructure: "—", formedOn: "3/15/2022" },
+            { deal: "Aurora", dealCode: "AUR", legalEntity: "Aurora Holdings Inc.", code: "C", office: "New York", fullExitOn: "D", taxStructure: "—", formedOn: "6/10/2020" },
+            { deal: "Stellar", dealCode: "STL", legalEntity: "Stellar Cayman Ltd.", code: "C", office: "San Francisco", fullExitOn: "LL", taxStructure: "—", formedOn: "12/1/2021" },
+            { deal: "Phoenix", dealCode: "PHX", legalEntity: "Phoenix Properties LLC", code: "F", office: "Singapore", fullExitOn: "LL", taxStructure: "—", formedOn: "4/20/2019" },
+            { deal: "Velocity", dealCode: "VEL", legalEntity: "Velocity GP Ltd.", code: "C", office: "San Francisco", fullExitOn: "D", taxStructure: "—", formedOn: "2/14/2023" },
+            { deal: "Meridian", dealCode: "MER", legalEntity: "Meridian SPV LLC", code: "C", office: "New York", fullExitOn: "LL", taxStructure: "—", formedOn: "7/8/2022" }
+          ],
+          steps: ["Preparer", "First Review", "Second Review", "Approver"],
+          assignments: {
+            "Borealis|SPV-17 Cayman Ltd.|": {
+              "Preparer": { assignee: "John Smith", completed: true },
+              "First Review": { assignee: "Mary Lee", completed: true },
+              "Second Review": { assignee: "Alan Chu", completed: false },
+              "Approver": { assignee: "Sarah Johnson", completed: false }
+            },
+            "Zephyr|Zephyr Holdings LLC|": {
+              "Preparer": { assignee: "Mary Lee", completed: true },
+              "First Review": { assignee: "John Smith", completed: false },
+              "Second Review": { assignee: "Sarah Johnson", completed: false },
+              "Approver": { assignee: "Alan Chu", completed: false }
+            },
+            "Orchid|Orchid Partners LP|": {
+              "Preparer": { assignee: "Alan Chu", completed: true },
+              "First Review": { assignee: "Sarah Johnson", completed: true },
+              "Second Review": { assignee: "John Smith", completed: false },
+              "Approver": { assignee: "Mary Lee", completed: false }
+            },
+            "Horizon|Horizon SPV 2 Ltd.|": {
+              "Preparer": { assignee: "Sarah Johnson", completed: true },
+              "First Review": { assignee: "Alan Chu", completed: false },
+              "Second Review": { assignee: "Mary Lee", completed: false },
+              "Approver": { assignee: "John Smith", completed: false }
+            },
+            "Nimbus|Nimbus Finance LP|": {
+              "Preparer": { assignee: "John Smith", completed: true },
+              "First Review": { assignee: "Mary Lee", completed: true },
+              "Second Review": { assignee: "Alan Chu", completed: false },
+              "Approver": { assignee: "Sarah Johnson", completed: false }
+            },
+            "Aurora|Aurora Holdings Inc.|": {
+              "Preparer": { assignee: "Mary Lee", completed: true },
+              "First Review": { assignee: "John Smith", completed: true },
+              "Second Review": { assignee: "Sarah Johnson", completed: true },
+              "Approver": { assignee: "Alan Chu", completed: false }
+            },
+            "Stellar|Stellar Cayman Ltd.|": {
+              "Preparer": { assignee: "Alan Chu", completed: true },
+              "First Review": { assignee: "Sarah Johnson", completed: false },
+              "Second Review": { assignee: "John Smith", completed: false },
+              "Approver": { assignee: "Mary Lee", completed: false }
+            },
+            "Phoenix|Phoenix Properties LLC|": {
+              "Preparer": { assignee: "Sarah Johnson", completed: true },
+              "First Review": { assignee: "Alan Chu", completed: true },
+              "Second Review": { assignee: "Mary Lee", completed: false },
+              "Approver": { assignee: "John Smith", completed: false }
+            },
+            "Velocity|Velocity GP Ltd.|": {
+              "Preparer": { assignee: "John Smith", completed: true },
+              "First Review": { assignee: "Mary Lee", completed: false },
+              "Second Review": { assignee: "Alan Chu", completed: false },
+              "Approver": { assignee: "Sarah Johnson", completed: false }
+            },
+            "Meridian|Meridian SPV LLC|": {
+              "Preparer": { assignee: "Mary Lee", completed: true },
+              "First Review": { assignee: "John Smith", completed: true },
+              "Second Review": { assignee: "Sarah Johnson", completed: false },
+              "Approver": { assignee: "Alan Chu", completed: false }
+            }
+          }
+        },
+        "SP Tax Return 10/15": {
+          "2025": [
+            { deal: "Borealis", dealCode: "BOR", legalEntity: "SPV-17 Cayman Ltd.", code: "C", office: "San Francisco", fullExitOn: "D", taxStructure: "—", formedOn: "9/1/2023" },
+            { deal: "Zephyr", dealCode: "ZEP", legalEntity: "Zephyr Holdings LLC", code: "C", office: "San Francisco", fullExitOn: "LL", taxStructure: "—", formedOn: "11/19/2021" },
+            { deal: "Orchid", dealCode: "ORC", legalEntity: "Orchid Partners LP", code: "C", office: "Singapore", fullExitOn: "LL", taxStructure: "—", formedOn: "8/24/2023" },
+            { deal: "Horizon", dealCode: "HOR", legalEntity: "Horizon SPV 2 Ltd.", code: "F", office: "Brazil", fullExitOn: "LL", taxStructure: "—", formedOn: "1/25/2018" },
+            { deal: "Nimbus", dealCode: "NIM", legalEntity: "Nimbus Finance LP", code: "C", office: "San Francisco", fullExitOn: "LL", taxStructure: "—", formedOn: "3/15/2022" },
+            { deal: "Aurora", dealCode: "AUR", legalEntity: "Aurora Holdings Inc.", code: "C", office: "New York", fullExitOn: "D", taxStructure: "—", formedOn: "6/10/2020" },
+            { deal: "Stellar", dealCode: "STL", legalEntity: "Stellar Cayman Ltd.", code: "C", office: "San Francisco", fullExitOn: "LL", taxStructure: "—", formedOn: "12/1/2021" },
+            { deal: "Phoenix", dealCode: "PHX", legalEntity: "Phoenix Properties LLC", code: "F", office: "Singapore", fullExitOn: "LL", taxStructure: "—", formedOn: "4/20/2019" },
+            { deal: "Velocity", dealCode: "VEL", legalEntity: "Velocity GP Ltd.", code: "C", office: "San Francisco", fullExitOn: "D", taxStructure: "—", formedOn: "2/14/2023" },
+            { deal: "Meridian", dealCode: "MER", legalEntity: "Meridian SPV LLC", code: "C", office: "New York", fullExitOn: "LL", taxStructure: "—", formedOn: "7/8/2022" }
+          ],
+          steps: ["Preparer", "First Review", "Second Review", "Approver"],
+          assignments: {
+            "Borealis|SPV-17 Cayman Ltd.|": { "Preparer": "Mary Lee", "First Review": "John Smith", "Second Review": "Sarah Johnson", "Approver": "Alan Chu" },
+            "Zephyr|Zephyr Holdings LLC|": { "Preparer": "Robert Kim", "First Review": "Mary Lee", "Second Review": "John Smith", "Approver": "Alan Chu" },
+            "Orchid|Orchid Partners LP|": { "Preparer": "Sarah Johnson", "First Review": "Alan Chu", "Second Review": "Mary Lee", "Approver": "Robert Kim" },
+            "Horizon|Horizon SPV 2 Ltd.|": { "Preparer": "John Smith", "First Review": "Sarah Johnson", "Second Review": "Alan Chu", "Approver": "Mary Lee" },
+            "Nimbus|Nimbus Finance LP|": { "Preparer": "Alan Chu", "First Review": "Robert Kim", "Second Review": "Mary Lee", "Approver": "John Smith" },
+            "Aurora|Aurora Holdings Inc.|": { "Preparer": "Mary Lee", "First Review": "John Smith", "Second Review": "Sarah Johnson", "Approver": "Alan Chu" },
+            "Stellar|Stellar Cayman Ltd.|": { "Preparer": "Robert Kim", "First Review": "Mary Lee", "Second Review": "John Smith", "Approver": "Sarah Johnson" },
+            "Phoenix|Phoenix Properties LLC|": { "Preparer": "Sarah Johnson", "First Review": "Alan Chu", "Second Review": "Robert Kim", "Approver": "Mary Lee" },
+            "Velocity|Velocity GP Ltd.|": { "Preparer": "John Smith", "First Review": "Sarah Johnson", "Second Review": "Alan Chu", "Approver": "Mary Lee" },
+            "Meridian|Meridian SPV LLC|": { "Preparer": "Alan Chu", "First Review": "Robert Kim", "Second Review": "Mary Lee", "Approver": "John Smith" }
+          }
+        },
+        "Task - Task Step Not Matching": {
+          "2024": [
+            { deal: "Borealis", dealCode: "BOR", legalEntity: "SPV-17 Cayman Ltd.", code: "C", office: "San Francisco", fullExitOn: "D", taxStructure: "—", formedOn: "9/1/2023" },
+            { deal: "Zephyr", dealCode: "ZEP", legalEntity: "Zephyr Holdings LLC", code: "C", office: "San Francisco", fullExitOn: "LL", taxStructure: "—", formedOn: "11/19/2021" }
+          ],
+          steps: ["Preparer", "First Review", "Second Review", "Third Review", "Approver"],
+          assignments: {
+            "Borealis|SPV-17 Cayman Ltd.|": {
+              "Preparer": { assignee: "John Smith", completed: true },
+              "First Review": { assignee: "Mary Lee", completed: true },
+              "Second Review": { assignee: "Alan Chu", completed: false },
+              "Third Review": { assignee: "Robert Kim", completed: false },
+              "Approver": { assignee: "Sarah Johnson", completed: false }
+            },
+            "Zephyr|Zephyr Holdings LLC|": {
+              "Preparer": { assignee: "Mary Lee", completed: true },
+              "First Review": { assignee: "John Smith", completed: false },
+              "Second Review": { assignee: "Sarah Johnson", completed: false },
+              "Third Review": { assignee: "Alan Chu", completed: false },
+              "Approver": { assignee: "Robert Kim", completed: false }
+            }
+          }
+        },
+        "Task - Entity Combination Not Matching": {
+          "2024": [
+            { deal: "DifferentA", dealCode: "DFA", legalEntity: "Different Entity A", code: "C", office: "London", fullExitOn: "D", taxStructure: "—", formedOn: "5/1/2023" },
+            { deal: "DifferentB", dealCode: "DFB", legalEntity: "Different Entity B", code: "F", office: "Tokyo", fullExitOn: "LL", taxStructure: "—", formedOn: "8/15/2022" }
+          ],
+          steps: ["Preparer", "First Review", "Approver"],
+          assignments: {
+            "DifferentA|Different Entity A|": {
+              "Preparer": { assignee: "User A", completed: true },
+              "First Review": { assignee: "User B", completed: false },
+              "Approver": { assignee: "User C", completed: false }
+            },
+            "DifferentB|Different Entity B|": {
+              "Preparer": { assignee: "User D", completed: true },
+              "First Review": { assignee: "User E", completed: true },
+              "Approver": { assignee: "User F", completed: false }
+            }
+          }
+        }
+      },
+      "Fund": {
+        "Fund Year-End Tax Package": {
+          "2024": [
+            { deal: "Alpha", dealCode: "ALP", legalEntity: "Alpha Master LP", code: "C", office: "San Francisco", fullExitOn: "—", taxStructure: "—", formedOn: "1/1/2020" },
+            { deal: "Beta", dealCode: "BET", legalEntity: "Beta Feeder Ltd.", code: "C", office: "New York", fullExitOn: "—", taxStructure: "—", formedOn: "3/15/2021" },
+            { deal: "Gamma", dealCode: "GAM", legalEntity: "Gamma Feeder LP", code: "F", office: "San Francisco", fullExitOn: "—", taxStructure: "—", formedOn: "6/1/2019" }
+          ],
+          steps: ["Preparer", "First Review", "Approver"],
+          assignments: {
+            "Alpha|Alpha Master LP|": {
+              "Preparer": { assignee: "Fund User A", completed: true },
+              "First Review": { assignee: "Fund User B", completed: false },
+              "Approver": { assignee: "Fund User C", completed: false }
+            },
+            "Beta|Beta Feeder Ltd.|": {
+              "Preparer": { assignee: "Fund User D", completed: true },
+              "First Review": { assignee: "Fund User E", completed: true },
+              "Approver": { assignee: "Fund User F", completed: false }
+            },
+            "Gamma|Gamma Feeder LP|": {
+              "Preparer": { assignee: "Fund User G", completed: true },
+              "First Review": { assignee: "Fund User H", completed: false },
+              "Approver": { assignee: "Fund User I", completed: false }
+            }
+          }
+        },
+        "Fund Extension Estimates": {
+          "2024": [
+            { deal: "Alpha", dealCode: "ALP", legalEntity: "Alpha Master LP", code: "C", office: "San Francisco", fullExitOn: "—", taxStructure: "—", formedOn: "1/1/2020" },
+            { deal: "Beta", dealCode: "BET", legalEntity: "Beta Feeder Ltd.", code: "C", office: "New York", fullExitOn: "—", taxStructure: "—", formedOn: "3/15/2021" }
+          ],
+          "2025": [
+            { deal: "Alpha", dealCode: "ALP", legalEntity: "Alpha Master LP", code: "C", office: "San Francisco", fullExitOn: "—", taxStructure: "—", formedOn: "1/1/2020" },
+            { deal: "Beta", dealCode: "BET", legalEntity: "Beta Feeder Ltd.", code: "C", office: "New York", fullExitOn: "—", taxStructure: "—", formedOn: "3/15/2021" }
+          ],
+          steps: ["Preparer", "First Review", "Second Review", "Approver"],
+          assignments: {
+            "Alpha|Alpha Master LP|": { "Preparer": "Fund User A", "First Review": "Fund User B", "Second Review": "Fund User C", "Approver": "Fund User D" },
+            "Beta|Beta Feeder Ltd.|": { "Preparer": "Fund User E", "First Review": "Fund User F", "Second Review": "Fund User G", "Approver": "Fund User H" }
+          }
+        },
+        "Task - Task Step Not Matching": {
+          "2024": [
+            { deal: "Alpha", dealCode: "ALP", legalEntity: "Alpha Master LP", code: "C", office: "San Francisco", fullExitOn: "—", taxStructure: "—", formedOn: "1/1/2020" }
+          ],
+          steps: ["Preparer", "First Review", "Second Review", "Third Review", "Approver"],
+          assignments: {
+            "Alpha|Alpha Master LP|": {
+              "Preparer": { assignee: "Fund User A", completed: true },
+              "First Review": { assignee: "Fund User B", completed: true },
+              "Second Review": { assignee: "Fund User C", completed: false },
+              "Third Review": { assignee: "Fund User D", completed: false },
+              "Approver": { assignee: "Fund User E", completed: false }
+            }
+          }
+        },
+        "Task - Entity Combination Not Matching": {
+          "2024": [
+            { deal: "DifferentX", dealCode: "DFX", legalEntity: "Different Entity X", code: "C", office: "London", fullExitOn: "—", taxStructure: "—", formedOn: "9/1/2021" }
+          ],
+          steps: ["Preparer", "First Review", "Approver"],
+          assignments: {
+            "DifferentX|Different Entity X|": {
+              "Preparer": { assignee: "Different User A", completed: true },
+              "First Review": { assignee: "Different User B", completed: false },
+              "Approver": { assignee: "Different User C", completed: false }
+            }
+          }
+        }
+      }
+    };
+
+    // Source tasks for mimicking (2025/previous year with assignments)
+    const mimicSources = {
+      "Side Pocket": [
+        {
+          task: "SP Tax Return 10/15",
+          year: "2025",
+          entityMatch: true,
+          stepMatch: true,
+          data: mockData["Side Pocket"]["SP Tax Return 10/15"]["2025"],
+          steps: mockData["Side Pocket"]["SP Tax Return 10/15"].steps,
+          assignments: mockData["Side Pocket"]["SP Tax Return 10/15"].assignments
+        },
+        {
+          task: "Extension Filing 03/15",
+          year: "2023",
+          entityMatch: true,
+          stepMatch: false,
+          data: [
+            { deal: "Borealis", dealCode: "BOR", legalEntity: "SPV-17 Cayman Ltd.", code: "C", office: "San Francisco", fullExitOn: "D", taxStructure: "—", formedOn: "9/1/2023" },
+            { deal: "Zephyr", dealCode: "ZEP", legalEntity: "Zephyr Holdings LLC", code: "C", office: "San Francisco", fullExitOn: "LL", taxStructure: "—", formedOn: "11/19/2021" }
+          ],
+          steps: ["Preparer", "First Review", "Approver"], // Missing "Second Review"
+          assignments: {
+            "Borealis|SPV-17 Cayman Ltd.|": { "Preparer": "Old User A", "First Review": "Old User B", "Approver": "Old User C" },
+            "Zephyr|Zephyr Holdings LLC|": { "Preparer": "Old User D", "First Review": "Old User E", "Approver": "Old User F" }
+          }
+        },
+        {
+          task: "SP Tax Return 10/15",
+          year: "2022",
+          entityMatch: false,
+          stepMatch: true,
+          data: [
+            { deal: "DifferentDeal1", dealCode: "DD1", legalEntity: "Different Entity 1", code: "C", office: "London", fullExitOn: "D", taxStructure: "—", formedOn: "1/1/2022" }
+          ],
+          steps: ["Preparer", "First Review", "Second Review", "Approver"],
+          assignments: {
+            "DifferentDeal1|Different Entity 1|": { "Preparer": "User X", "First Review": "User Y", "Second Review": "User Z", "Approver": "User W" }
+          }
+        }
+      ],
+      "Fund": [
+        {
+          task: "Fund Extension Estimates",
+          year: "2025",
+          entityMatch: true,
+          stepMatch: true,
+          data: mockData["Fund"]["Fund Extension Estimates"]["2025"],
+          steps: mockData["Fund"]["Fund Extension Estimates"].steps,
+          assignments: mockData["Fund"]["Fund Extension Estimates"].assignments
+        }
+      ]
+    };
+
+    // Global state
+    let selectedRows = [];
+    let currentDestinationData = null;
+    let currentSourceData = null;
+
+    // Initialize
+    function init() {
+      populateTaskDropdown();
+      populateMainGrid();
+      setupEventListeners();
+    }
+
+    function populateTaskDropdown() {
+      const category = document.getElementById('categorySelect').value;
+      const dealPeriod = document.getElementById('dealPeriodSelect').value;
+      const taskSelect = document.getElementById('taskSelect');
+      taskSelect.innerHTML = '';
+
+      const tasks = Object.keys(mockData[category]);
+      tasks.forEach(task => {
+        const taskData = mockData[category][task];
+        // Only show task if it has data for the selected deal period
+        if (taskData[dealPeriod] && taskData[dealPeriod].length > 0) {
+          const option = document.createElement('option');
+          option.value = task;
+          option.textContent = task;
+          taskSelect.appendChild(option);
+        }
+      });
+    }
+
+    function populateMainGrid() {
+      const category = document.getElementById('categorySelect').value;
+      const task = document.getElementById('taskSelect').value;
+      const dealPeriod = document.getElementById('dealPeriodSelect').value;
+
+      const taskData = mockData[category][task];
+      const rows = taskData[dealPeriod] || [];
+      const steps = taskData.steps || [];
+
+      const tbody = document.getElementById('mainTableBody');
+      tbody.innerHTML = '';
+
+      rows.forEach((row, idx) => {
+        const tr = document.createElement('tr');
+        tr.className = 'selectable';
+        tr.dataset.index = idx;
+        tr.innerHTML = `
+          <td>${dealPeriod}</td>
+          <td>${category}</td>
+          <td>${row.deal}</td>
+          <td>${row.dealCode || '—'}</td>
+          <td>${task}</td>
+          <td>${row.legalEntity}</td>
+          <td>${row.office}</td>
+          <td>${row.fullExitOn}</td>
+          <td>${row.taxStructure}</td>
+          <td>${row.formedOn}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      document.getElementById('rowCount').textContent = `${rows.length}/${rows.length} rows`;
+
+      // Update Task Steps
+      populateTaskSteps(rows[0] || null, steps);
+    }
+
+    function populateTaskSteps(selectedRow, steps) {
+      const tbody = document.getElementById('taskStepsBody');
+      tbody.innerHTML = '';
+
+      if (!selectedRow || steps.length === 0) {
+        const tr = document.createElement('tr');
+        tr.innerHTML = '<td colspan="6" style="text-align: center; color: #999; padding: 20px;">Select a row to view task steps</td>';
+        tbody.appendChild(tr);
+        document.getElementById('taskStepsCount').textContent = '0/0 rows';
+        return;
+      }
+
+      const category = document.getElementById('categorySelect').value;
+      const task = document.getElementById('taskSelect').value;
+      const dealPeriod = document.getElementById('dealPeriodSelect').value;
+      const taskData = mockData[category][task];
+      const assignments = taskData.assignments || {};
+      const entityKey = `${selectedRow.deal}|${selectedRow.legalEntity}|`;
+
+      steps.forEach((step, idx) => {
+        const tr = document.createElement('tr');
+        const stepData = assignments[entityKey] && assignments[entityKey][step];
+        const assignee = stepData ? (stepData.assignee || stepData) : "—";
+        const completed = stepData && stepData.completed ? "☑" : "☐";
+
+        tr.innerHTML = `
+          <td>${step}</td>
+          <td>Helios & Co.</td>
+          <td>2025-03-10</td>
+          <td>${typeof assignee === 'string' ? assignee : assignee.assignee || '—'}</td>
+          <td>${completed}</td>
+          <td></td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      document.getElementById('taskStepsCount').textContent = `1/${steps.length} rows`;
+    }
+
+    function setupEventListeners() {
+      // Category/Task change
+      document.getElementById('categorySelect').addEventListener('change', () => {
+        populateTaskDropdown();
+        populateMainGrid();
+        selectedRows = [];
+        updateCopyButton();
+      });
+
+      document.getElementById('taskSelect').addEventListener('change', () => {
+        populateMainGrid();
+        selectedRows = [];
+        updateCopyButton();
+      });
+
+      document.getElementById('dealPeriodSelect').addEventListener('change', () => {
+        populateTaskDropdown();
+        populateMainGrid();
+        selectedRows = [];
+        updateCopyButton();
+      });
+
+      // Row selection
+      document.getElementById('mainTableBody').addEventListener('click', (e) => {
+        const tr = e.target.closest('tr.selectable');
+        if (!tr) return;
+
+        const index = parseInt(tr.dataset.index);
+        const isCtrlOrCmd = e.ctrlKey || e.metaKey;
+
+        if (!isCtrlOrCmd) {
+          // Single select
+          document.querySelectorAll('#mainTableBody tr.selected').forEach(r => r.classList.remove('selected'));
+          selectedRows = [index];
+          tr.classList.add('selected');
+        } else {
+          // Multi select
+          if (selectedRows.includes(index)) {
+            selectedRows = selectedRows.filter(i => i !== index);
+            tr.classList.remove('selected');
+          } else {
+            selectedRows.push(index);
+            tr.classList.add('selected');
+          }
+        }
+
+        updateCopyButton();
+
+        // Update task steps for first selected row
+        const category = document.getElementById('categorySelect').value;
+        const task = document.getElementById('taskSelect').value;
+        const dealPeriod = document.getElementById('dealPeriodSelect').value;
+        const taskData = mockData[category][task];
+        const rows = taskData[dealPeriod] || [];
+        const steps = taskData.steps || [];
+        populateTaskSteps(rows[selectedRows[0]], steps);
+      });
+
+      // Copy button
+      document.getElementById('copyBtn').addEventListener('click', openBulkModal);
+
+      // Bulk modal
+      document.getElementById('closeBulkBtn').addEventListener('click', closeBulkModal);
+      document.getElementById('bulkCancelBtn').addEventListener('click', closeBulkModal);
+      document.getElementById('bulkOkBtn').addEventListener('click', closeBulkModal);
+
+      // Mimic button
+      document.getElementById('mimicBtn').addEventListener('click', openMimicModal);
+
+      // Mimic modal
+      document.getElementById('closeMimicBtn').addEventListener('click', closeMimicModal);
+      document.getElementById('cancelMimicBtn').addEventListener('click', closeMimicModal);
+      document.getElementById('applyMimicBtn').addEventListener('click', applyMimic);
+
+      // Mimic source change
+      document.getElementById('mimicSourceSelect').addEventListener('change', updateMimicGrids);
+    }
+
+    function updateCopyButton() {
+      const copyBtn = document.getElementById('copyBtn');
+      copyBtn.disabled = selectedRows.length === 0;
+    }
+
+    function openBulkModal() {
+      const category = document.getElementById('categorySelect').value;
+      const task = document.getElementById('taskSelect').value;
+      const dealPeriod = document.getElementById('dealPeriodSelect').value;
+
+      // Populate form fields
+      document.getElementById('bulkTask').value = task;
+      document.getElementById('bulkCategory').value = category;
+      document.getElementById('bulkDealPeriod').value = dealPeriod;
+
+      // Get selected row data
+      const taskData = mockData[category][task];
+      const rows = taskData[dealPeriod] || [];
+      const steps = taskData.steps || [];
+      const assignments = taskData.assignments || {};
+      const selectedRowsData = selectedRows.map(idx => rows[idx]);
+
+      // Populate Deal and Legal Entity dropdowns
+      const uniqueDeals = [...new Set(selectedRowsData.map(r => r.deal))];
+      const uniqueLegalEntities = [...new Set(selectedRowsData.map(r => r.legalEntity))];
+
+      const dealSelect = document.getElementById('bulkDeal');
+      dealSelect.innerHTML = uniqueDeals.map(d => `<option value="${d}">${d}</option>`).join('');
+
+      const leSelect = document.getElementById('bulkLegalEntity');
+      leSelect.innerHTML = uniqueLegalEntities.map(le => `<option value="${le}">${le}</option>`).join('');
+
+      // Store for mimic functionality
+      currentDestinationData = {
+        category,
+        task,
+        dealPeriod,
+        rows: selectedRowsData,
+        steps
+      };
+
+      const isFundCategory = category === "Fund";
+
+      // Populate Tasks grid header
+      const bulkTasksHeader = document.getElementById('bulkTasksHeader');
+      bulkTasksHeader.innerHTML = `
+        <th style="width: 80px;">Deal Period</th>
+        <th style="width: 100px;">Category</th>
+        <th style="width: 180px;">Task</th>
+        <th style="width: 150px;">Deal</th>
+        ${isFundCategory ? '<th style="width: 100px;">Fund</th>' : ''}
+        <th>Legal Entity</th>
+      `;
+
+      // Populate Tasks grid
+      const bulkTasksBody = document.getElementById('bulkTasksBody');
+      bulkTasksBody.innerHTML = '';
+      selectedRowsData.forEach(row => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${dealPeriod}</td>
+          <td>${category}</td>
+          <td>${task}</td>
+          <td>${row.deal}</td>
+          ${isFundCategory ? '<td>—</td>' : ''}
+          <td>${row.legalEntity}</td>
+        `;
+        bulkTasksBody.appendChild(tr);
+      });
+      document.getElementById('bulkTasksCount').textContent = `${selectedRowsData.length}/${selectedRowsData.length} rows`;
+
+      // Populate Task Steps grid header
+      const bulkStepsHeader = document.getElementById('bulkStepsHeader');
+      bulkStepsHeader.innerHTML = `
+        <th style="width: 100px;">Category</th>
+        <th style="width: 150px;">Task</th>
+        <th style="width: 120px;">Deal</th>
+        ${isFundCategory ? '<th style="width: 80px;">Fund</th>' : ''}
+        <th style="width: 150px;">Legal Entity</th>
+        <th style="width: 120px;">Task Step</th>
+        <th style="width: 120px;">Accounting F.</th>
+        <th style="width: 90px;">Due Date</th>
+        <th>Assigned To</th>
+      `;
+
+      // Populate Task Steps grid
+      const bulkStepsBody = document.getElementById('bulkStepsBody');
+      bulkStepsBody.innerHTML = '';
+      let totalSteps = 0;
+      selectedRowsData.forEach(row => {
+        const entityKey = `${row.deal}|${row.legalEntity}|`;
+        steps.forEach(step => {
+          totalSteps++;
+          const stepData = assignments[entityKey] && assignments[entityKey][step];
+          const assignee = stepData ? (typeof stepData === 'string' ? stepData : stepData.assignee || "—") : "—";
+
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${category}</td>
+            <td>${task}</td>
+            <td>${row.deal}</td>
+            ${isFundCategory ? '<td>—</td>' : ''}
+            <td>${row.legalEntity}</td>
+            <td>${step}</td>
+            <td>Helios & Co.</td>
+            <td>2025-03-10</td>
+            <td id="assigned-${row.deal}-${row.legalEntity}-${step}">${assignee}</td>
+          `;
+          bulkStepsBody.appendChild(tr);
+        });
+      });
+      document.getElementById('bulkStepsCount').textContent = `${totalSteps}/${totalSteps} rows`;
+
+      document.getElementById('bulkModal').classList.add('active');
+    }
+
+    function closeBulkModal() {
+      document.getElementById('bulkModal').classList.remove('active');
+    }
+
+    function openMimicModal() {
+      if (!currentDestinationData) return;
+
+      const category = currentDestinationData.category;
+      const sources = mimicSources[category] || [];
+
+      // Populate source dropdown
+      const select = document.getElementById('mimicSourceSelect');
+      select.innerHTML = '';
+
+      sources.forEach((source, idx) => {
+        const option = document.createElement('option');
+        const entityIcon = source.entityMatch ? '✓' : '⚠';
+        const stepIcon = source.stepMatch ? '✓' : '⚠';
+        // Format as 3-column table-like
+        const taskPart = `${source.task} (${source.year})`.padEnd(45);
+        const entityPart = `Entity:${entityIcon}`.padEnd(12);
+        const stepPart = `Step:${stepIcon}`;
+        option.value = idx;
+        option.textContent = `${taskPart} ${entityPart} ${stepPart}`;
+        select.appendChild(option);
+      });
+
+      // Initial population
+      updateMimicGrids();
+
+      document.getElementById('mimicModal').classList.add('active');
+    }
+
+    function closeMimicModal() {
+      document.getElementById('mimicModal').classList.remove('active');
+    }
+
+    function updateMimicGrids() {
+      if (!currentDestinationData) return;
+
+      const category = currentDestinationData.category;
+      const sources = mimicSources[category] || [];
+      const sourceIdx = parseInt(document.getElementById('mimicSourceSelect').value);
+      const source = sources[sourceIdx];
+
+      if (!source) return;
+
+      currentSourceData = source;
+
+      // Calculate matches
+      const matches = [];
+      const unmatchedEntity = [];
+      const unmatchedStep = [];
+
+      currentDestinationData.rows.forEach(destRow => {
+        currentDestinationData.steps.forEach(destStep => {
+          const destKey = `${destRow.deal}|${destRow.legalEntity}|`;
+
+          // Check if source has this entity combination
+          const sourceRow = source.data.find(sr =>
+            sr.deal === destRow.deal && sr.legalEntity === destRow.legalEntity
+          );
+
+          if (!sourceRow) {
+            unmatchedEntity.push({
+              deal: destRow.deal,
+              legalEntity: destRow.legalEntity,
+              fund: "—",
+              step: destStep,
+              reason: "No matching entity combo in source"
+            });
+            return;
+          }
+
+          // Check if source has this step
+          if (!source.steps.includes(destStep)) {
+            unmatchedStep.push({
+              deal: destRow.deal,
+              legalEntity: destRow.legalEntity,
+              fund: "—",
+              step: destStep,
+              reason: "Step not found in source"
+            });
+            return;
+          }
+
+          // It's a match!
+          const sourceAssignee = source.assignments && source.assignments[destKey]
+            ? source.assignments[destKey][destStep] || "—"
+            : "—";
+
+          matches.push({
+            deal: destRow.deal,
+            legalEntity: destRow.legalEntity,
+            fund: "—",
+            step: destStep,
+            currentAssignee: "—",
+            sourceAssignee: sourceAssignee,
+            status: sourceAssignee !== "—" ? "Will Update" : "No Change"
+          });
+        });
+      });
+
+      // Populate Matching grid
+      const matchingBody = document.getElementById('matchingBody');
+      matchingBody.innerHTML = '';
+      matches.forEach(m => {
+        const tr = document.createElement('tr');
+        const statusClass = m.status === "Will Update" ? "badge-success" : "badge-info";
+        tr.innerHTML = `
+          <td>${m.deal}</td>
+          <td>${m.legalEntity}</td>
+          <td>${m.fund}</td>
+          <td>${m.step}</td>
+          <td>${m.currentAssignee}</td>
+          <td>${m.sourceAssignee}</td>
+          <td><span class="badge ${statusClass}">${m.status}</span></td>
+        `;
+        matchingBody.appendChild(tr);
+      });
+      document.getElementById('matchCount').textContent = `(${matches.length} matches)`;
+
+      // Populate Unmatched Entity grid
+      const unmatchedEntityBody = document.getElementById('unmatchedEntityBody');
+      unmatchedEntityBody.innerHTML = '';
+      if (unmatchedEntity.length === 0) {
+        unmatchedEntityBody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #999; padding: 12px;">No unmatched entities</td></tr>';
+      } else {
+        unmatchedEntity.forEach(u => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${u.deal}</td>
+            <td>${u.legalEntity}</td>
+            <td>${u.fund}</td>
+            <td>${u.step}</td>
+            <td>${u.reason}</td>
+          `;
+          unmatchedEntityBody.appendChild(tr);
+        });
+      }
+      document.getElementById('unmatchedEntityCount').textContent = `(${unmatchedEntity.length} unmatched)`;
+
+      // Populate Unmatched Step grid
+      const unmatchedStepBody = document.getElementById('unmatchedStepBody');
+      unmatchedStepBody.innerHTML = '';
+      if (unmatchedStep.length === 0) {
+        unmatchedStepBody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #999; padding: 12px;">No unmatched steps</td></tr>';
+      } else {
+        unmatchedStep.forEach(u => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${u.deal}</td>
+            <td>${u.legalEntity}</td>
+            <td>${u.fund}</td>
+            <td>${u.step}</td>
+            <td>${u.reason}</td>
+          `;
+          unmatchedStepBody.appendChild(tr);
+        });
+      }
+      document.getElementById('unmatchedStepCount').textContent = `(${unmatchedStep.length} unmatched)`;
+
+      // Enable/disable Apply button
+      const applyBtn = document.getElementById('applyMimicBtn');
+      applyBtn.disabled = matches.length === 0;
+    }
+
+    function applyMimic() {
+      if (!currentDestinationData || !currentSourceData) return;
+
+      // Apply assignments to the bulk modal
+      currentDestinationData.rows.forEach(destRow => {
+        currentDestinationData.steps.forEach(destStep => {
+          const destKey = `${destRow.deal}|${destRow.legalEntity}|`;
+
+          // Check if source has matching entity and step
+          const sourceRow = currentSourceData.data.find(sr =>
+            sr.deal === destRow.deal && sr.legalEntity === destRow.legalEntity
+          );
+
+          if (sourceRow && currentSourceData.steps.includes(destStep)) {
+            const sourceAssignee = currentSourceData.assignments && currentSourceData.assignments[destKey]
+              ? currentSourceData.assignments[destKey][destStep] || "—"
+              : "—";
+
+            // Update the cell in bulk modal
+            const cellId = `assigned-${destRow.deal}-${destRow.legalEntity}-${destStep}`;
+            const cell = document.getElementById(cellId);
+            if (cell && sourceAssignee !== "—") {
+              cell.textContent = sourceAssignee;
+              cell.style.background = '#D4EDDA'; // Light green to show updated
+            }
+          }
+        });
+      });
+
+      closeMimicModal();
+      alert('Assignments applied successfully!');
+    }
+
+    // Start the app
+    init();
+  </script>
+</body>
+</html>
